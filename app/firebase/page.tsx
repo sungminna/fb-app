@@ -10,31 +10,120 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import 'firebaseui/dist/firebaseui.css';
 
-import firebase from 'firebase/compat/app';
-//import firebase from 'firebase/app';
 import 'firebase/compat/auth';
 
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
 import { auth, app } from "@/lib/firebase/auth"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
+import { getAuth, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+
+import { headers } from 'next/headers';
 
 export default function LoginForm() {
-  useEffect(() => {
-    let ui: any | null = null;
-    const firebaseui = require('firebaseui');
-    if(!ui){
-        const ui = new firebaseui.auth.AuthUI(auth);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [user, setUser] = useState();
+  const [isAuth ,setIsAuth] = useState(false);
+
+  const provider = new GoogleAuthProvider();
+  
+  const CheckCurrentUser = () => {
+    const user = auth.currentUser;
+    if(user){
+      console.log(user);
+      setIsAuth(true);
     }
-    ui.start('#firebaseui-auth-container', {
-        signInOptions:[
-            firebase.auth.EmailAuthProvider.PROVIDER_ID
-        ], 
-    
+    else{
+      setIsAuth(false);
+    }
+  }
+
+  const SendToken = async () => {
+    try{
+      if(!auth.currentUser){
+        console.log("no user signed in");
+        return;
+      }
+      const token = auth.currentUser?.getIdToken(true);
+      //send token via https
+      
+      const res = await fetch('http://localhost:8080/auth', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json', 
+          'Authorization': `${token}`, 
+        }, 
+        body: JSON.stringify({fb_token: token}), 
       });
-  })
+
+      if(!res.ok){
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      console.log("server response", data);
+
+
+    }
+    catch (error){
+      console.log(error);
+    }
+  }
+
+  const SignUp = async (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    try{
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        CheckCurrentUser();
+    }
+    catch(error){
+        console.log(error);
+    }
+  }
+
+  const Login = async (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    try{
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        CheckCurrentUser();
+    }
+    catch(error){
+        console.log(error);
+    }
+  }
+
+  const Google = async (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    try{
+        const result = await signInWithPopup(auth, provider);
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential?.accessToken;
+        const user = result.user;
+        console.log(token);
+        CheckCurrentUser();
+    }
+    catch(error){
+        console.log(error);
+    }
+  }
+
+  const Logout = async (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    try{
+        await signOut(auth);
+        CheckCurrentUser();
+    }
+    catch(error){
+        console.log(error);
+    }
+  }
+  
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -42,11 +131,50 @@ export default function LoginForm() {
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Manual user auth
           </CardDescription>
         </CardHeader>
         <CardContent>
-        <div id="firebaseui-auth-container"></div>
+            <div className="grid gap-4">
+            <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+                onChange={(e) => setEmail(e.target.value)}
+                />
+            </div>
+            <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" type="password" 
+                onChange={(e) => setPassword(e.target.value)}
+
+                />
+            </div>
+            <Button className="w-full" onClick={SignUp}>
+                Create an account
+            </Button>
+            <Button className="w-full" onClick={Login}>
+                Login an account
+            </Button>
+            <Button className="w-full" onClick={Google}>
+                Google Auth
+            </Button>
+            <Button className="w-full" onClick={Logout} disabled={!isAuth}>
+                Logout an account
+            </Button>
+            <Button className="w-full" onClick={SendToken} disabled={!isAuth}>
+                SEND TOKEN
+            </Button>
+            </div>
+            <div className="mt-4 text-center text-sm">
+            Already have an account?{" "}
+            <Link href="signin" className="underline">
+                Sign in
+            </Link>
+            </div>
         </CardContent>
       </Card>
     </main>
