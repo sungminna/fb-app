@@ -29,6 +29,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [user, setUser] = useState();
   const [isAuth ,setIsAuth] = useState(false);
+  const [username, setUsername] = useState("");
+  const [token, setToken] = useState("");
 
   const provider = new GoogleAuthProvider();
   
@@ -49,7 +51,11 @@ export default function LoginForm() {
         console.log("no user signed in");
         return;
       }
-      const token = auth.currentUser?.getIdToken(true);
+      const user = auth.currentUser;
+      const token = await user.getIdToken();
+      console.log(token);
+      console.log(username);
+      //const token = auth.currentUser?.getIdToken(true);
       //send token via https
       
       const res = await fetch('http://localhost:8000/local/firebase-token/', {
@@ -58,7 +64,7 @@ export default function LoginForm() {
           'Content-Type': 'application/json', 
           'Authorization': `Bearer ${token}`, 
         }, 
-        body: JSON.stringify({token: token}), 
+        body: JSON.stringify({'token': token, 'username': username}), 
       });
 
       if(!res.ok){
@@ -105,6 +111,8 @@ export default function LoginForm() {
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const token = credential?.accessToken;
         const user = result.user;
+        const username = user.displayName;
+        setUsername(username);
         console.log(token);
         CheckCurrentUser();
     }
@@ -136,6 +144,16 @@ export default function LoginForm() {
         </CardHeader>
         <CardContent>
             <div className="grid gap-4">
+            <div className="grid gap-2">
+                <Label htmlFor="username">Email</Label>
+                <Input
+                id="username"
+                type="text"
+                placeholder="username"
+                required
+                onChange={(e) => setUsername(e.target.value)}
+                />
+            </div>
             <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
