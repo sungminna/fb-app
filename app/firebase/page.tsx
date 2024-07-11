@@ -52,13 +52,13 @@ export default function LoginForm() {
       const token = auth.currentUser?.getIdToken(true);
       //send token via https
       
-      const res = await fetch('http://localhost:8080/auth', {
+      const res = await fetch('http://localhost:8000/local/firebase-token/', {
         method: 'POST', 
         headers: {
           'Content-Type': 'application/json', 
-          'Authorization': `${token}`, 
+          'Authorization': `Bearer ${token}`, 
         }, 
-        body: JSON.stringify({fb_token: token}), 
+        body: JSON.stringify({token: token}), 
       });
 
       if(!res.ok){
