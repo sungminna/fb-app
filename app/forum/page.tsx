@@ -31,6 +31,8 @@ import {
 
 import { auth, app } from "@/lib/firebase/auth"
 
+import { useState } from "react"
+
 const getToken = async() => {
   try{
       if(!auth.currentUser){
@@ -54,6 +56,8 @@ const getToken = async() => {
         'Content-Type': 'application/json', 
         'Authorization': `Bearer ${token}`, 
       }, 
+      //next: { revalidate: 0}, 
+      cache: "no-cache", 
     });
     if(!res.ok){
       throw new Error('Faild to fetch forum data');
@@ -67,6 +71,7 @@ export default async function Component() {
     let forums = [];
     try{
       forums = await getForumList();
+      console.log(forums);
     }
     catch(error){
       console.log(error);
@@ -119,7 +124,12 @@ export default async function Component() {
                             />
                         </TableCell>
                         <TableCell className="font-medium">
-                            <Link href={'/forum/' + index}>{forum.forumName || 'N/A'}</Link>
+                            <Link href={{pathname: '/forum/' + index, 
+                                        query: {
+                                          pTitle: forum.title, 
+                                          pDescription: forum.description, 
+                                        }, 
+                            }} as={'/forum/' + index}>{forum.title || 'N/A'}</Link>
                         </TableCell>
                         <TableCell>
                             <Badge variant="outline">Draft</Badge>
@@ -138,9 +148,14 @@ export default async function Component() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <Link href={{pathname: '/forum/' + index + '/updateForum/', 
+                              }}>
                                 <DropdownMenuItem>Edit</DropdownMenuItem>
+                              </Link>
+                              <Link href="#">
                                 <DropdownMenuItem>Delete</DropdownMenuItem>
+                              </Link>
                             </DropdownMenuContent>
                             </DropdownMenu>
                         </TableCell>

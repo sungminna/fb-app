@@ -16,10 +16,12 @@ import {
   import { useRouter } from 'next/navigation'
   import { useState } from "react"
 
-export default function Component() {
+export default function Component({ params }: {params: {forumId: string}}) {
+
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+
     const getToken = async() => {
         try{
             if(!auth.currentUser){
@@ -35,6 +37,23 @@ export default function Component() {
         }
     }
     const router = useRouter();
+
+    const getForum = async () => {
+        const token = await getToken();
+        const res = await fetch(`http://localhost:8000/community/forums?title=${params.forumId}`, {
+          method: 'GET', 
+          headers: {
+            'Content-Type': 'application/json', 
+            'Authorization': `Bearer ${token}`, 
+          }, 
+          //next: { revalidate: 0}, 
+          cache: "no-cache", 
+        });
+        if(!res.ok){
+          throw new Error('Faild to fetch forum data');
+        }
+        return res.json();
+      }
 
     const sendForumData = async () => {
         try{
@@ -60,11 +79,18 @@ export default function Component() {
 
     }
 
+    try{
+      const forum_data = getForum();
+      console.log(forum_data);
+    }
+    catch{
+      console.log('errr');
+    }
 
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Create New Fourm</CardTitle>
+          <CardTitle>Update Forum</CardTitle>
           <CardDescription>
             hehe
           </CardDescription>
