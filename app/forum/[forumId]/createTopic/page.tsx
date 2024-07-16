@@ -13,19 +13,13 @@ import {
   import { Button } from "@/components/ui/button"
 
   import { auth, app } from "@/lib/firebase/auth"
-  import { useRouter, useSearchParams } from 'next/navigation'
+  import { useRouter } from 'next/navigation'
   import { useState } from "react"
-import { Search } from "lucide-react"
-import { SearchParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime"
 
 export default function Component({ params }: {params: {forumId: string}}) {
-    const searchParams = useSearchParams();  
-    const pTitle = searchParams.get('title');
-    const pDescription = searchParams.get('description');
-    const [title, setTitle] = useState(pTitle);
-    const [description, setDescription] = useState(pDescription);
 
-
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
     const getToken = async() => {
         try{
             if(!auth.currentUser){
@@ -42,23 +36,22 @@ export default function Component({ params }: {params: {forumId: string}}) {
     }
     const router = useRouter();
 
-    const sendForumData = async () => {
+    const sendTopicData = async () => {
         try{
             const token = await getToken();
-            console.log(title, description);
-            const res = await fetch(`http://localhost:8000/community/forums/${params.forumId}/`, {
-                method: 'PATCH', 
+            const res = await fetch('http://localhost:8000/community/topics/', {
+                method: 'POST', 
                 headers: {
                   'Content-Type': 'application/json', 
                   'Authorization': `Bearer ${token}`, 
                 }, 
-                body: JSON.stringify({'title': title, 'description': description}), 
+                body: JSON.stringify({'title': title, 'description': description, 'forum': params.forumId}), 
               });
             if (!res.ok){
                 throw new Error(`HTTP error! statys: ${res.status}`);
             }
             console.log(res);
-            router.push('/forum');
+            router.push(`/forum/${params.forumId}`);
             router.refresh();
         }
         catch(error){
@@ -67,17 +60,18 @@ export default function Component({ params }: {params: {forumId: string}}) {
 
     }
 
+
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Update Forum</CardTitle>
+          <CardTitle>Create New Topic</CardTitle>
           <CardDescription>
             hehe
           </CardDescription>
         </CardHeader>
         <CardContent>
-            <Button onClick={sendForumData}>
-                Update!
+            <Button onClick={sendTopicData}>
+                Make it!
             </Button>
           <div className="grid gap-6">
             <div className="grid gap-3">
@@ -87,8 +81,7 @@ export default function Component({ params }: {params: {forumId: string}}) {
                 type="text"
                 className="w-full"
                 placeholder='write title here!'
-                defaultValue={pTitle || ""}
-                disabled={pTitle != null}
+                defaultValue=""
                 onChange={(e) => setTitle(e.target.value)}
 
               />
@@ -99,7 +92,7 @@ export default function Component({ params }: {params: {forumId: string}}) {
                 id="description"
                 placeholder='write description here!'
                 className="min-h-32"
-                defaultValue={pDescription || ""}
+                defaultValue=""
                 onChange={(e) => setDescription(e.target.value)}
 
               />

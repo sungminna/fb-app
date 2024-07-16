@@ -32,6 +32,7 @@ import {
 import { auth, app } from "@/lib/firebase/auth"
 
 import { useState } from "react"
+import { Description } from "@radix-ui/react-toast";
 
 const getToken = async() => {
   try{
@@ -124,12 +125,12 @@ export default async function Component() {
                             />
                         </TableCell>
                         <TableCell className="font-medium">
-                            <Link href={{pathname: '/forum/' + index, 
+                            <Link href={{pathname: '/forum/' + forum.id, 
                                         query: {
                                           pTitle: forum.title, 
                                           pDescription: forum.description, 
                                         }, 
-                            }} as={'/forum/' + index}>{forum.title || 'N/A'}</Link>
+                            }} as={'/forum/' + forum.id}>{forum.title || 'N/A'}</Link>
                         </TableCell>
                         <TableCell>
                             <Badge variant="outline">Draft</Badge>
@@ -149,7 +150,12 @@ export default async function Component() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <Link href={{pathname: '/forum/' + index + '/updateForum/', 
+                              <Link href={{pathname: '/forum/' + forum.id + '/updateForum/', 
+                              query: {
+                                forumId: forum.id, 
+                                title: forum.title, 
+                                description: forum.description, 
+                              }, 
                               }}>
                                 <DropdownMenuItem>Edit</DropdownMenuItem>
                               </Link>

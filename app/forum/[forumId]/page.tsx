@@ -28,9 +28,51 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { auth, app } from "@/lib/firebase/auth"
 
-export default function Component({ params }: {params: {forumId: string}}) {
-    const forums = [{'topicName': 'topic1', 'description': 'description1'}, {'topicName': 'topic2', 'description': 'description2'}, {'topicName': 'topic3', 'description': 'description3'}, ]
+const getToken = async() => {
+  try{
+      if(!auth.currentUser){
+          console.log("no user signed in");
+          return;
+        }
+      const user = auth.currentUser;
+      const token = await user.getIdToken();
+      return token;
+  }
+  catch(error){
+      console.log(error);
+  }
+}
+
+const getTopicList = async (forumId: string) => {
+  const token = await getToken();
+  const res = await fetch(`http://localhost:8000/community/topics/?forum_id=${forumId}`, {
+    method: 'GET', 
+    headers: {
+      'Content-Type': 'application/json', 
+      'Authorization': `Bearer ${token}`, 
+    }, 
+    //next: { revalidate: 0}, 
+    cache: "no-cache", 
+  });
+  if(!res.ok){
+    throw new Error('Faild to fetch topic data');
+  }
+  return res.json();
+}
+
+export default async function Component({ params }: {params: {forumId: string}}) {
+    //const forums = [{'topicName': 'topic1', 'description': 'description1'}, {'topicName': 'topic2', 'description': 'description2'}, {'topicName': 'topic3', 'description': 'description3'}, ]
+    let topics = [];
+    try{
+      topics = await getTopicList(params.forumId);
+      console.log(topics);
+    }
+    catch(error){
+      console.log(error);
+    }
+
 
   return (
     <Card>
@@ -38,6 +80,11 @@ export default function Component({ params }: {params: {forumId: string}}) {
         <CardTitle>Topics/ {params.forumId}</CardTitle>
         <CardDescription>
           Topic is here~~
+          <Link href={`${params.forumId}/createTopic`}>
+            <Button>
+              Create Topic
+            </Button>
+          </Link>
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -62,7 +109,7 @@ export default function Component({ params }: {params: {forumId: string}}) {
           <TableBody>
             
             {
-                forums.map((topic, index) => (
+                topics.map((topic, index) => (
                     <TableRow key={ index }>
                         <TableCell className="hidden sm:table-cell">
                             <Image
@@ -74,7 +121,7 @@ export default function Component({ params }: {params: {forumId: string}}) {
                             />
                         </TableCell>
                         <TableCell className="font-medium">
-                            <Link href={`/forum/${params.forumId}/${index}`}>{topic.topicName}</Link>
+                            <Link href={`/forum/${params.forumId}/${topic.id}`}>{topic.title}</Link>
                         </TableCell>
                         <TableCell>
                             <Badge variant="outline">Draft</Badge>
@@ -82,7 +129,7 @@ export default function Component({ params }: {params: {forumId: string}}) {
                         <TableCell className="hidden md:table-cell">{topic.description}</TableCell>
                         <TableCell className="hidden md:table-cell">25</TableCell>
                         <TableCell className="hidden md:table-cell">
-                            2023-07-12 10:42 AM
+                            {topic.created_at}
                         </TableCell>
                         <TableCell>
                             <DropdownMenu>

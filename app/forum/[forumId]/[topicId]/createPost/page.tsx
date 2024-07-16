@@ -13,26 +13,34 @@ import {
   import { Button } from "@/components/ui/button"
 
   import { auth, app } from "@/lib/firebase/auth"
-  import { useRouter, useSearchParams } from 'next/navigation'
-  import { useState } from "react"
-import { Search } from "lucide-react"
-import { SearchParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime"
+  import { useRouter } from 'next/navigation'
+  import { useEffect, useState } from "react"
 
-export default function Component({ params }: {params: {forumId: string}}) {
-    const searchParams = useSearchParams();  
-    const pTitle = searchParams.get('title');
-    const pDescription = searchParams.get('description');
-    const [title, setTitle] = useState(pTitle);
-    const [description, setDescription] = useState(pDescription);
+  import { AlertCircle } from "lucide-react"
+ 
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert"
 
+export default function Component({ params }: {params: {forumId: string, topicId: string}}) {
 
+    const [author, setAuthor] = useState("");
+    const [content, setContent] = useState("");
+    const [logged, setLogged] = useState(true);
     const getToken = async() => {
         try{
+            console.log(auth.currentUser);
+
             if(!auth.currentUser){
                 console.log("no user signed in");
+                setLogged(false);
                 return;
               }
+            setLogged(true);
             const user = auth.currentUser;
+            console.log(user);
             const token = await user.getIdToken();
             return token;
         }
@@ -40,25 +48,28 @@ export default function Component({ params }: {params: {forumId: string}}) {
             console.log(error);
         }
     }
-    const router = useRouter();
 
-    const sendForumData = async () => {
+    useEffect(() => {
+        getToken();
+    }, [])
+
+    const router = useRouter();
+    const sendPostData = async () => {
         try{
             const token = await getToken();
-            console.log(title, description);
-            const res = await fetch(`http://localhost:8000/community/forums/${params.forumId}/`, {
-                method: 'PATCH', 
+            const res = await fetch('http://localhost:8000/community/posts/', {
+                method: 'POST', 
                 headers: {
                   'Content-Type': 'application/json', 
                   'Authorization': `Bearer ${token}`, 
                 }, 
-                body: JSON.stringify({'title': title, 'description': description}), 
+                body: JSON.stringify({'content': content, 'author': author, 'topic': params.topicId}), 
               });
             if (!res.ok){
                 throw new Error(`HTTP error! statys: ${res.status}`);
             }
             console.log(res);
-            router.push('/forum');
+            router.push(`/forum/${params.forumId}/${params.topicId}`);
             router.refresh();
         }
         catch(error){
@@ -67,40 +78,47 @@ export default function Component({ params }: {params: {forumId: string}}) {
 
     }
 
+
     return (
       <Card>
+        <Alert variant="destructive" hidden={logged}>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+                Log in to create 
+            </AlertDescription>
+        </Alert>
         <CardHeader>
-          <CardTitle>Update Forum</CardTitle>
+          <CardTitle>Create New Post</CardTitle>
           <CardDescription>
             hehe
           </CardDescription>
         </CardHeader>
         <CardContent>
-            <Button onClick={sendForumData}>
-                Update!
+            <Button onClick={sendPostData} disabled={!logged}>
+                Make it!
             </Button>
           <div className="grid gap-6">
             <div className="grid gap-3">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="author">Author</Label>
               <Input
-                id="title"
+                id="author"
                 type="text"
                 className="w-full"
-                placeholder='write title here!'
-                defaultValue={pTitle || ""}
-                disabled={pTitle != null}
-                onChange={(e) => setTitle(e.target.value)}
+                placeholder='Who is Author'
+                defaultValue=""
+                onChange={(e) => setAuthor(e.target.value)}
 
               />
             </div>
             <div className="grid gap-3">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="content">Content</Label>
               <Textarea
-                id="description"
-                placeholder='write description here!'
+                id="content"
+                placeholder='write contents here!'
                 className="min-h-32"
-                defaultValue={pDescription || ""}
-                onChange={(e) => setDescription(e.target.value)}
+                defaultValue=""
+                onChange={(e) => setContent(e.target.value)}
 
               />
             </div>
