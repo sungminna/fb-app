@@ -16,8 +16,7 @@ import {
   import { useRouter } from 'next/navigation'
   import { useEffect, useState } from "react"
 
-  import { AlertCircle } from "lucide-react"
- 
+  import { AlertCircle } from "lucide-react" 
 import {
   Alert,
   AlertDescription,
@@ -40,7 +39,6 @@ export default function Component({ params }: {params: {forumId: string, topicId
               }
             setLogged(true);
             const user = auth.currentUser;
-            console.log(user);
             const token = await user.getIdToken();
             return token;
         }
@@ -63,7 +61,7 @@ export default function Component({ params }: {params: {forumId: string, topicId
                   'Content-Type': 'application/json', 
                   'Authorization': `Bearer ${token}`, 
                 }, 
-                body: JSON.stringify({'content': content, 'author': author, 'topic': params.topicId}), 
+                body: JSON.stringify({'content': content, 'topic': params.topicId}), 
               });
             if (!res.ok){
                 throw new Error(`HTTP error! statys: ${res.status}`);

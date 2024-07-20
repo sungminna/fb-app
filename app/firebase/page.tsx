@@ -27,7 +27,7 @@ export default function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState();
+  const [user, setUser] = useState("");
   const [isAuth ,setIsAuth] = useState(false);
   const [username, setUsername] = useState("");
   const [token, setToken] = useState("");
@@ -44,6 +44,10 @@ export default function LoginForm() {
       setIsAuth(false);
     }
   }
+
+  useEffect(() => {
+    CheckCurrentUser();
+}, [])
 
   const SendToken = async () => {
     try{
@@ -97,6 +101,7 @@ export default function LoginForm() {
     try{
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
+        setUser(user);
         CheckCurrentUser();
     }
     catch(error){
@@ -137,7 +142,7 @@ export default function LoginForm() {
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <Card className="mx-auto max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">{isAuth ? "Wecome": "Login"}</CardTitle>
           <CardDescription>
             Manual user auth
           </CardDescription>
@@ -145,7 +150,7 @@ export default function LoginForm() {
         <CardContent>
             <div className="grid gap-4">
             <div className="grid gap-2">
-                <Label htmlFor="username">Email</Label>
+                <Label htmlFor="username">Username</Label>
                 <Input
                 id="username"
                 type="text"
@@ -186,6 +191,7 @@ export default function LoginForm() {
             <Button className="w-full" onClick={SendToken} disabled={!isAuth}>
                 SEND TOKEN
             </Button>
+            <Link href={'/'}>Home</Link>
             </div>
             <div className="mt-4 text-center text-sm">
             Already have an account?{" "}

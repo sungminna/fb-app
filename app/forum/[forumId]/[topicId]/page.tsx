@@ -29,10 +29,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { auth, app } from "@/lib/firebase/auth"
-
+import { useEffect } from "react";
 
 const getToken = async() => {
   try{
+      console.log(auth);
       if(!auth.currentUser){
           console.log("no user signed in");
           return;
@@ -70,6 +71,7 @@ export default async function Component({ params }: {params: {topicId: string, f
                     {'author': 'postauthor4', 'content': 'content4'},
                 ]
       */
+
     let posts = [];
     try{
       posts = await getPostList(params.forumId, params.topicId);
@@ -93,36 +95,23 @@ export default async function Component({ params }: {params: {topicId: string, f
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="hidden w-[100px] sm:table-cell">
-                <span className="sr-only">Image</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            
-            {
-                posts.map((post, index) => (
-                    <Card key={index} className='my-4'>
-                    <CardHeader className="p-2 pt-0 md:p-4">
-                      <CardTitle>
-                          <Link href={`/forum/${params.forumId}/${params.topicId}/${post.id}`}>{post.author}</Link>
-                      </CardTitle>
-                      <CardDescription>
-                          description
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-                      {post.content}
-                    </CardContent>
-                  </Card>
-                    
-                ))
+      {
+        posts.map((post, index) => (
+          <Card key={index} className='my-4'>
+            <CardHeader className="p-2 pt-0 md:p-4">
+              <CardTitle>
+                <Link href={`/forum/${params.forumId}/${params.topicId}/${post.id}`}>{post.username}</Link>
+              </CardTitle>
+              <CardDescription>
+                description
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
+              {post.content}
+            </CardContent>
+          </Card>              
+        ))
             }
-          </TableBody>
-        </Table>
       </CardContent>
       <CardFooter>
         <div className="text-xs text-muted-foreground">
