@@ -8,6 +8,7 @@ export default function Home() {
       <Button>Click !</Button>
       <Link href="/forum">FORUM</Link>
       <Link href="/signin">LOGIN</Link>
+      <Link href="/group">GROUP</Link>
       <Link href="/firebase">FIREBASE</Link>
     </main>
   );
