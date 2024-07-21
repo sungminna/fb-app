@@ -73,15 +73,16 @@ import { Separator } from "@/components/ui/separator"
 export default async function Component({ params }: {params: {postId:string, topicId: string, forumId: string}}) {
     let post = [];
     try{
-      post = await getPost(params.forumId, params.topicId, params.postId);
-      console.log(post);
+      const page_post = await getPost(params.forumId, params.topicId, params.postId);
+      post = page_post;
     }
     catch(error){
       console.log(error);
     }
     let comments = [];
     try{
-        comments = await getCommentList(params.postId);
+        const page_comments = await getCommentList(params.postId);
+        comments = page_comments.results;
         console.log(comments);
     }
     catch(error){

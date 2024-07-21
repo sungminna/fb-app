@@ -71,7 +71,8 @@ export default async function Component() {
     //const forums = [{'forumName': 'forum1', 'description': 'description1'}, {'forumName': 'forum2', 'description': 'description2'}, {'forumName': 'forum3', 'description': 'description3'}, ]
     let forums = [];
     try{
-      forums = await getForumList();
+      const page_forums = await getForumList();
+      forums = page_forums.results;
       console.log(forums);
     }
     catch(error){

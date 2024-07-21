@@ -52,7 +52,8 @@ export default async function Component({ params }: {params: {forumId: string}})
     //const forums = [{'topicName': 'topic1', 'description': 'description1'}, {'topicName': 'topic2', 'description': 'description2'}, {'topicName': 'topic3', 'description': 'description3'}, ]
     let topics = [];
     try{
-      topics = await getTopicList(params.forumId);
+      const page_topics = await getTopicList(params.forumId)
+      topics = page_topics.results;
       console.log(topics);
     }
     catch(error){
