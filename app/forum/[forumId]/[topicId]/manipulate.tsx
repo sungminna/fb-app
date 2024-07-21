@@ -1,43 +1,19 @@
 'use client'
-import { Input } from "@/components/ui/input"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+
 import { Button } from "@/components/ui/button"
 
 
 import { useState, useEffect } from "react";
-import { auth, app } from "@/lib/firebase/auth"
-import { useRouter } from 'next/navigation'
-import { settings, setUserId } from "firebase/analytics";
 
 import Link from "next/link";
+import { getToken } from "@/lib/firebase/getToken";
+
 
 
 export function ManipuateButton({ params }: {params: {postUserId: string, postId:string, topicId: string}}) {
     const [id, setId] = useState("");
     const [owner, setOwner] = useState(false);
-    const [logged, setLogged] = useState(false);
-    const getToken = async() => {
-        try{
-            if(!auth.currentUser){
-                console.log("no user signed in");
-                setLogged(false);
-                return;
-              }
-            setLogged(true);
-            const user = auth.currentUser;
-            const token = await user.getIdToken();
-            return token;
-        }
-        catch(error){
-            console.log(error);
-        }
-    }
+
     const getUserId = async() => {
         try{
             const token = await getToken();

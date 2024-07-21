@@ -1,5 +1,3 @@
-import Image from "next/image"
-import { MoreHorizontal } from "lucide-react"
 
 import Link from "next/link";
 
@@ -13,39 +11,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { auth, app } from "@/lib/firebase/auth"
-import { useEffect } from "react";
-import { ManipuateButton } from "./manipulate";
 
-const getToken = async() => {
-  try{
-      if(!auth.currentUser){
-          console.log("no user signed in");
-          return;
-        }
-      const user = auth.currentUser;
-      const token = await user.getIdToken();
-      return token;
-  }
-  catch(error){
-      console.log(error);
-  }
-}
+import { ManipuateButton } from "./manipulate";
+import { getToken } from "@/lib/firebase/getToken";
 
   const getPostList = async (forumId: string, topicId:string) => {
     const token = await getToken();

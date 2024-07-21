@@ -6,13 +6,10 @@ import {
     CardHeader,
     CardTitle,
   } from "@/components/ui/card"
-  import { Input } from "@/components/ui/input"
   import { Label } from "@/components/ui/label"
   import { Textarea } from "@/components/ui/textarea"
-  import Link from "next/link";
   import { Button } from "@/components/ui/button"
 
-  import { auth, app } from "@/lib/firebase/auth"
   import { useRouter } from 'next/navigation'
   import { useEffect, useState } from "react"
 
@@ -23,29 +20,15 @@ import {
   AlertTitle,
 } from "@/components/ui/alert"
 
+import { getToken } from "@/lib/firebase/getToken";
+
 export default function Component({ params }: {params: {forumId: string, topicId: string, username:string, postId:string}}) {
 
     const [author, setAuthor] = useState("");
     const [content, setContent] = useState("");
     const [logged, setLogged] = useState(true);
-    const getToken = async() => {
-        try{
-            console.log(auth.currentUser);
+    const [token, seteToken] = useState("");
 
-            if(!auth.currentUser){
-                console.log("no user signed in");
-                setLogged(false);
-                return;
-              }
-            setLogged(true);
-            const user = auth.currentUser;
-            const token = await user.getIdToken();
-            return token;
-        }
-        catch(error){
-            console.log(error);
-        }
-    }
     useEffect(() => {
       async function fetchData(){
           try{

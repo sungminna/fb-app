@@ -28,22 +28,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { auth, app } from "@/lib/firebase/auth"
+import { getToken } from "@/lib/firebase/getToken";
 
-const getToken = async() => {
-  try{
-      if(!auth.currentUser){
-          console.log("no user signed in");
-          return;
-        }
-      const user = auth.currentUser;
-      const token = await user.getIdToken();
-      return token;
-  }
-  catch(error){
-      console.log(error);
-  }
-}
 
 const getTopicList = async (forumId: string) => {
   const token = await getToken();

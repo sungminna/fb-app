@@ -9,14 +9,13 @@ import {
   import { Input } from "@/components/ui/input"
   import { Label } from "@/components/ui/label"
   import { Textarea } from "@/components/ui/textarea"
-  import Link from "next/link";
   import { Button } from "@/components/ui/button"
 
-  import { auth, app } from "@/lib/firebase/auth"
   import { useRouter, useSearchParams } from 'next/navigation'
   import { useState } from "react"
-import { Search } from "lucide-react"
-import { SearchParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime"
+
+import { getToken } from "@/lib/firebase/getToken";
+
 
 export default function Component({ params }: {params: {forumId: string}}) {
     const searchParams = useSearchParams();  
@@ -26,20 +25,6 @@ export default function Component({ params }: {params: {forumId: string}}) {
     const [description, setDescription] = useState(pDescription);
 
 
-    const getToken = async() => {
-        try{
-            if(!auth.currentUser){
-                console.log("no user signed in");
-                return;
-              }
-            const user = auth.currentUser;
-            const token = await user.getIdToken();
-            return token;
-        }
-        catch(error){
-            console.log(error);
-        }
-    }
     const router = useRouter();
 
     const sendForumData = async () => {

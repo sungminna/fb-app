@@ -6,10 +6,8 @@ import {
     CardHeader,
     CardTitle,
   } from "@/components/ui/card"
-  import { Input } from "@/components/ui/input"
   import { Label } from "@/components/ui/label"
   import { Textarea } from "@/components/ui/textarea"
-  import Link from "next/link";
   import { Button } from "@/components/ui/button"
 
   import { auth, app } from "@/lib/firebase/auth"

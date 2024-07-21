@@ -2,7 +2,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Copy,
-  CreditCard,
   MoreVertical,
   Truck,
 } from "lucide-react"
@@ -31,23 +30,8 @@ import {
 
 import { CommentInput } from "./comment"
 
-import { auth, app } from "@/lib/firebase/auth"
-import { useEffect } from "react";
+import { getToken } from "@/lib/firebase/getToken";
 
-const getToken = async() => {
-  try{
-      if(!auth.currentUser){
-          console.log("no user signed in");
-          return;
-        }
-      const user = auth.currentUser;
-      const token = await user.getIdToken();
-      return token;
-  }
-  catch(error){
-      console.log(error);
-  }
-}
 
   const getPost = async (forumId: string, topicId:string, postId:string) => {
     const token = await getToken();

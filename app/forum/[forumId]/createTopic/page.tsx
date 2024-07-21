@@ -9,31 +9,18 @@ import {
   import { Input } from "@/components/ui/input"
   import { Label } from "@/components/ui/label"
   import { Textarea } from "@/components/ui/textarea"
-  import Link from "next/link";
   import { Button } from "@/components/ui/button"
 
-  import { auth, app } from "@/lib/firebase/auth"
   import { useRouter } from 'next/navigation'
   import { useState } from "react"
+  import { getToken } from "@/lib/firebase/getToken";
+
 
 export default function Component({ params }: {params: {forumId: string}}) {
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const getToken = async() => {
-        try{
-            if(!auth.currentUser){
-                console.log("no user signed in");
-                return;
-              }
-            const user = auth.currentUser;
-            const token = await user.getIdToken();
-            return token;
-        }
-        catch(error){
-            console.log(error);
-        }
-    }
+
     const router = useRouter();
 
     const sendTopicData = async () => {
