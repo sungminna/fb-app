@@ -23,7 +23,7 @@ import {
   AlertTitle,
 } from "@/components/ui/alert"
 
-export default function Component({ params }: {params: {forumId: string, topicId: string, username:string}}) {
+export default function Component({ params }: {params: {forumId: string, topicId: string, username:string, postId:string}}) {
 
     const [author, setAuthor] = useState("");
     const [content, setContent] = useState("");
@@ -46,21 +46,53 @@ export default function Component({ params }: {params: {forumId: string, topicId
             console.log(error);
         }
     }
-
     useEffect(() => {
-        getToken();
-    }, [])
+      async function fetchData(){
+          try{
+              const data = await getPostData();
+              await setContent(data.content);
+          }
+          catch (error) {
+              console.error(error);
+          }
+      }
+      fetchData();
+  }, [])
+
     const router = useRouter();
+
+    const getPostData = async () => {
+      try{
+          const token = await getToken();
+          const res = await fetch(`http://localhost:8000/community/posts/${params.postId}`, {
+              method: 'GET', 
+              headers: {
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}`, 
+              }, 
+            });
+          if (!res.ok){
+              throw new Error(`HTTP error! statys: ${res.status}`);
+          }
+          const data = await res.json();          
+          return data;
+      }
+      catch(error){
+          console.log(error);
+      }
+
+  }
+
     const sendPostData = async () => {
         try{
             const token = await getToken();
-            const res = await fetch('http://localhost:8000/community/posts/', {
-                method: 'POST', 
+            const res = await fetch(`http://localhost:8000/community/posts/${params.postId}/`, {
+                method: 'PATCH', 
                 headers: {
                   'Content-Type': 'application/json', 
                   'Authorization': `Bearer ${token}`, 
                 }, 
-                body: JSON.stringify({'content': content, 'topic': params.topicId}), 
+                body: JSON.stringify({'content': content}), 
               });
             if (!res.ok){
                 throw new Error(`HTTP error! statys: ${res.status}`);
@@ -72,8 +104,28 @@ export default function Component({ params }: {params: {forumId: string, topicId
         catch(error){
             console.log(error);
         }
-
     }
+    const deletePostData = async () => {
+      try{
+          const token = await getToken();
+          const res = await fetch(`http://localhost:8000/community/posts/${params.postId}/`, {
+              method: 'DELETE', 
+              headers: {
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}`, 
+              }, 
+            });
+          if (!res.ok){
+              throw new Error(`HTTP error! statys: ${res.status}`);
+          }
+          console.log(res);
+          router.push(`/forum/${params.forumId}/${params.topicId}`);
+          router.refresh();
+      }
+      catch(error){
+          console.log(error);
+      }
+  }
 
 
     return (
@@ -86,14 +138,17 @@ export default function Component({ params }: {params: {forumId: string, topicId
             </AlertDescription>
         </Alert>
         <CardHeader>
-          <CardTitle>Create New Post</CardTitle>
+          <CardTitle>Modify Post</CardTitle>
           <CardDescription>
             hehe
           </CardDescription>
         </CardHeader>
         <CardContent>
             <Button onClick={sendPostData} disabled={!logged}>
-                Make it!
+                Update it!
+            </Button>
+            <Button onClick={deletePostData} disabled={!logged}>
+              Delete it!
             </Button>
           <div className="grid gap-6">
             <div className="grid gap-3">
@@ -102,7 +157,7 @@ export default function Component({ params }: {params: {forumId: string, topicId
                 id="content"
                 placeholder='write contents here!'
                 className="min-h-32"
-                defaultValue=""
+                defaultValue={content}
                 onChange={(e) => setContent(e.target.value)}
 
               />

@@ -30,10 +30,10 @@ import {
 } from "@/components/ui/table"
 import { auth, app } from "@/lib/firebase/auth"
 import { useEffect } from "react";
+import { ManipuateButton } from "./manipulate";
 
 const getToken = async() => {
   try{
-      console.log(auth);
       if(!auth.currentUser){
           console.log("no user signed in");
           return;
@@ -103,7 +103,7 @@ export default async function Component({ params }: {params: {topicId: string, f
                 <Link href={`/forum/${params.forumId}/${params.topicId}/${post.id}`}>{post.username}</Link>
               </CardTitle>
               <CardDescription>
-                description
+                <ManipuateButton params={{topicId: params.topicId, postUserId: post.author, postId: post.id}}></ManipuateButton>
               </CardDescription>
             </CardHeader>
             <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
