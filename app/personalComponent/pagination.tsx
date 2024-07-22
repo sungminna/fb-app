@@ -23,7 +23,7 @@ import { useParams, usePathname, useSearchParams } from "next/navigation"
         return params.toString();
     };
 
-    const totalPages = Math.ceil(params.count / params.page_size)
+    const totalPages = Math.ceil(params.count / params.page_size) + 1
     
     const renderPageNumbers = () => {
         let pages = [];
