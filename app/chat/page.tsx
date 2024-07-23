@@ -1,68 +1,158 @@
-import Link from "next/link"
+import Image from "next/image"
+import { MoreHorizontal } from "lucide-react"
+
+import Link from "next/link";
+
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Container } from "postcss"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
-const tags = Array.from({ length: 50 }).map(
-  (_, i, a) => `username.${a.length - i}`
-)
+import { auth, app } from "@/lib/firebase/auth"
 
-export default function InputWithButton() {
+import { useState } from "react"
+import { Description } from "@radix-ui/react-toast";
+
+const getToken = async() => {
+  try{
+      if(!auth.currentUser){
+          console.log("no user signed in");
+          return;
+        }
+      const user = auth.currentUser;
+      const token = await user.getIdToken();
+      return token;
+  }
+  catch(error){
+      console.log(error);
+  }
+}
+
+  const getChatRoomList = async () => {
+    const token = await getToken();
+    const res = await fetch('http://localhost:8000/chat/chatrooms/', {
+      method: 'GET', 
+      headers: {
+        'Content-Type': 'application/json', 
+        'Authorization': `Bearer ${token}`, 
+      }, 
+      //next: { revalidate: 0}, 
+      cache: "no-cache", 
+    });
+    if(!res.ok){
+      throw new Error('Faild to fetch forum data');
+    }
+    return res.json();
+  }
+
+export default async function Component() {
+
+    //const forums = [{'forumName': 'forum1', 'description': 'description1'}, {'forumName': 'forum2', 'description': 'description2'}, {'forumName': 'forum3', 'description': 'description3'}, ]
+    let chatrooms = [];
+    try{
+      const page_chatrooms = await getChatRoomList();
+      chatrooms = page_chatrooms.results;
+      console.log(chatrooms);
+    }
+    catch(error){
+      console.log(error);
+    }
+
   return (
-    <main className="flex h-svh flex-col items-center justify-between p-12">
-      <Card className="w-5/6 h-full">
-        <CardHeader>
-          <CardTitle>Chat Room Name</CardTitle>
-        </CardHeader>
-        <CardContent className="h-full">
-          <ScrollArea className="h-96 w-full rounded-md border">
-            <div className="h-full p-4">
-              <h4 className="mb-4 text-sm font-medium leading-none">Tags</h4>
-                {tags.map((tag) => (
-                  <>
-                    <div key={tag} className="text-sm">
-                      {tag}
-                    </div>
-                    <Card className="justify-left">
-                      <CardContent>
-                        <p className="text-left">
-                          text
-                        </p>
-                      </CardContent>
-                    </Card>
-                    <Card className="jsutify-right">
-                      <CardContent className="container mx-auto text-wrap">
-                        asdfasdfasdfasdfasdfasdfasdfasdfasdfasdf
-                        asdfasdfasdfasdfasdfasdfasdfasdfa
-                        sdfasdfasdfassddddddddd
-                        asdfasdfasdfasdfasdfasdfasdfasdfasdfasdf
-                        ffffffffff
-                        ffffffffff
+    <Card>
+      <CardHeader>
+        <CardTitle>ChatRooms</CardTitle>
+        <CardDescription>
+          Chaty is here~~
+          <Link href="chat/createChatRoom">
+            <Button>
+              Create Room
+            </Button>
+          </Link>
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>RoomName</TableHead>
+              <TableHead>Onwer</TableHead>
+              <TableHead>
+                Control
+                <span className="sr-only">Actions</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            
+            {
+                chatrooms.map((chatroom, index) => (
+                    <TableRow key={ index }>
+                        <TableCell className="font-medium">
+                            <Link href={{pathname: '/chat/' + chatroom.id, 
+                                        query: {
+                                          room_name: chatroom.room_name, 
+                                        }, 
+                            }}as={'/chat/' + chatroom.id}>{chatroom.room_name || 'N/A'}</Link>
+                        </TableCell>
+                        <TableCell className="font-medium">{chatroom.owner_name || 'N/A'}</TableCell>
+                        <TableCell>
+                            <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button aria-haspopup="true" size="icon" variant="ghost">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <Link href={{pathname: '/chat/' + chatroom.id + '/updateForum/', 
+                              query: {
+                                chatroomId: chatroom.id, 
+                                owner: chatroom.owner, 
+                              }, 
+                              }}>
+                                <DropdownMenuItem>Edit</DropdownMenuItem>
+                              </Link>
+                              <Link href="#">
+                                <DropdownMenuItem>Delete</DropdownMenuItem>
+                              </Link>
+                            </DropdownMenuContent>
+                            </DropdownMenu>
+                        </TableCell>
+                    </TableRow>
+                ))
+            }
 
-                      </CardContent>
-                    </Card>
-                    <Separator className="my-2" />
-                  </>
-                ))}
-            </div>
-          </ScrollArea>
-          <div className="flex w-svh items-center space-x-2 py-6">
-            <Input type="text" placeholder="message" />
-            <Button type="submit">Send</Button>
-          </div>
-        </CardContent>
-      </Card>
-    </main>
-    
+          </TableBody>
+        </Table>
+      </CardContent>
+      <CardFooter>
+        <div className="text-xs text-muted-foreground">
+          Showing <strong>1-10</strong> of <strong>32</strong> products
+        </div>
+      </CardFooter>
+    </Card>
   )
 }
