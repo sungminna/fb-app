@@ -2,7 +2,7 @@ import Image from "next/image"
 import { MoreHorizontal } from "lucide-react"
 
 import Link from "next/link";
-
+import { JoinButton } from "./joinBtn";
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -102,6 +102,7 @@ export default async function Component() {
                 Control
                 <span className="sr-only">Actions</span>
               </TableHead>
+              <TableHead>Join</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -140,6 +141,9 @@ export default async function Component() {
                               </Link>
                             </DropdownMenuContent>
                             </DropdownMenu>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          <JoinButton params={{chatroomId: chatroom.id}}></JoinButton>
                         </TableCell>
                     </TableRow>
                 ))
