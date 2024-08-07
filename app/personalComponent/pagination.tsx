@@ -8,9 +8,8 @@ import {
     PaginationNext,
     PaginationPrevious,
   } from "@/components/ui/pagination"
-import { max } from "date-fns";
-import { create } from "domain";
-import { useParams, usePathname, useSearchParams } from "next/navigation"
+
+import { usePathname, useSearchParams } from "next/navigation"
   
   export function MyPagination({ params }: {params: {count: number, next: string, previous: string, page_size:number, currentPage: number}}) {
     

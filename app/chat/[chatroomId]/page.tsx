@@ -1,40 +1,34 @@
 'use client'
-import Link from "next/link"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
+import { usePathname } from 'next/navigation';
+
 
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 
-import { useMemo, useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import React from 'react';
 import { getToken } from "@/lib/firebase/getToken";
-import { auth, app } from "@/lib/firebase/auth"
 
 export default function ChatRoomList({ params }: {params: {chatroomId: string}}) {
 
   const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
   const [id, setId] = useState("");
-  const [chatId, setChatId] = useState("");
-  const [username, setUsername] = useState("");
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [initial, setInitial] = useState(0);
+  const [initial, setInitial] = useState(1);
   const [prevScroll, setPrevScroll] = useState(0);
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const scrollViewportRef = useRef(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
-
 
 
   const wsRef = useRef<WebSocket | null>(null);
@@ -52,7 +46,6 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
 
       ws.onmessage = (event) => {
         const newMessage = JSON.parse(event.data);
-        console.log(newMessage);
         setMessages((prevMessages) => {
           if (prevMessages.length === 0 || prevMessages[prevMessages.length - 1].id !== newMessage.id) {
             return [...prevMessages, {
@@ -90,13 +83,11 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
               'Content-Type': 'application/json', 
               'Authorization': `Bearer ${token}`, 
             }, 
-            //credentials: 'include', 
           });
         if (!res.ok){
             throw new Error(`HTTP error! statys: ${res.status}`);
         }
         const userData = await res.json()
-        //console.log(res);
         return userData;
     }
     catch(error){
@@ -104,29 +95,6 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
     }
 }
   
-
-const getIsParticipant = async() => {
-  try{
-      const token = await getToken();
-      const res = await fetch(`http://localhost:8000/chat/chats/check?room_id=${params.chatroomId}`, {
-          method: 'GET', 
-          headers: {
-            'Content-Type': 'application/json', 
-            'Authorization': `Bearer ${token}`, 
-          }, 
-        });
-      if (!res.ok){
-          throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      const userData = await res.json()
-      //console.log(res);
-      return userData;
-  }
-  catch(error){
-      console.log(error);
-  }
-}
-
   const sendMessageData = async () => {
     try{
       if(wsRef.current && wsRef.current.readyState === WebSocket.OPEN){
@@ -150,25 +118,39 @@ const getIsParticipant = async() => {
     setIsLoadingMore(true);
     try{
       const token = await getToken();
-      const res = await fetch(`http://localhost:8000/chat/messages/room_messages?room_id=${params.chatroomId}&page=${page}`, {
+      var uri="";
+      if(page === 1){
+        uri = `http://localhost:8000/chat/messages/room_messages?room_id=${params.chatroomId}&page=${page}&page_size=10`;
+      }
+      else{
+        uri = `http://localhost:8000/chat/messages/room_messages?room_id=${params.chatroomId}&page=${page}`;
+      }
+      const res = await fetch(uri, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
       });
-      console.log(res);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      
       const data = await res.json();
       const newMessages = data.results;
-  
       if(newMessages.length === 0){
         setHasMore(false);
-      } else {
-        setMessages(prevMessages => [...newMessages.reverse(), ...prevMessages]);
+      } 
+      else {
+        setMessages(prevMessages => {
+          // 중복 메시지 제거
+          const uniqueNewMessages = newMessages.filter(newMsg => 
+            !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
+          );
+          return [...uniqueNewMessages.reverse(), ...prevMessages];
+        });
+        if(page === 1){
+          setPage(2);
+        }
         setPage(prevPage => prevPage + 1);
         setHasMore(data.next !== null);
       }
@@ -180,18 +162,15 @@ const getIsParticipant = async() => {
     finally{
       setIsLoadingMore(false);
     }
-  }, [hasMore, page, params.chatroomId]);
+  }, [hasMore, page]);
 
 
 
 useEffect(() => {
     async function fetchData(){
         try{
-            const chat = await getIsParticipant();
-            setChatId(chat.id.toString());
-            const userData2 = await getUserId();
-            setId(userData2.id.toString());
-            setUsername(userData2.username.toString());
+            const userData = await getUserId();
+            setId(userData.id.toString());
         }
         catch (error) {
             console.error(error);
@@ -201,17 +180,12 @@ useEffect(() => {
 }, [])
 
 
-
-
 const handleScroll = useCallback((event) => {
   setPrevScroll(event.target.scrollHeight);
   if (event.target.scrollTop === 0 && hasMore && !isLoadingMore) {
-    console.log("Reached top, loading more messages");
     loadMoreMessages();
-    console.log(event.target.scrollHeight, prevScroll);
-    setInitial(1);
     const pos = event.target.scrollHeight - prevScroll;
-    event.target.scrollTo({top:pos + 5});
+    event.target.scrollTo({top:pos});
   }
 }, [hasMore, isLoadingMore]);
 
@@ -219,8 +193,9 @@ const handleScroll = useCallback((event) => {
 
 
 useEffect(() => {
-  if (lastMessageRef.current && messages.length > 0 && initial == 0) {
+  if (lastMessageRef.current && messages.length > 0 && initial == 1) {
     lastMessageRef.current.scrollIntoView({ behavior: 'instant' });
+    setInitial(0);
   }
 }, [messages]);
 
@@ -266,6 +241,7 @@ useEffect(() => {
         </ScrollArea>
         <div className="flex w-svh items-center space-x-2 py-6">
           <Input type="text" 
+                value={text}
                 placeholder="message"
                 onChange={(e) => setText(e.target.value)}
                 onKeyDown={(e) => e.key ==='Enter' && sendMessageData()}

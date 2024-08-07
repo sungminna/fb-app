@@ -1,7 +1,6 @@
 
 import Link from "next/link";
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -24,7 +23,6 @@ import { getToken } from "@/lib/firebase/getToken";
         'Content-Type': 'application/json', 
         'Authorization': `Bearer ${token}`, 
       }, 
-      //next: { revalidate: 0}, 
       cache: "no-cache", 
     });
     if(!res.ok){
@@ -37,19 +35,12 @@ export default async function Component({ params, searchParams }: {
   params: {topicId: string, forumId: string}, 
   searchParams: {page?: string}
 }) {
-    /*const posts = [{'author': 'postauthor1', 'content': 'content1'},
-                    {'author': 'postauthor2', 'content': 'content2'},
-                    {'author': 'postauthor3', 'content': 'content3'},
-                    {'author': 'postauthor4', 'content': 'content4'},
-                ]
-      */
     const currentPage = Number(searchParams.page) || 1;
     let posts = [];
     let page_posts = {};
     try{
       page_posts = await getPostList(params.forumId, params.topicId, currentPage);
       posts = page_posts.results;
-      console.log(posts);
     }
     catch(error){
       console.log(error);
@@ -89,7 +80,7 @@ export default async function Component({ params, searchParams }: {
       </CardContent>
       <CardFooter>
         <div className="text-xs text-muted-foreground">
-          Showing <strong>{(currentPage - 1) * 10 + 1}-{Math.min(currentPage * 10, page_posts.count)}</strong> of <strong>{page_posts.count}</strong> posts
+          Showing <strong>{(currentPage - 1) * 5 + 1}-{Math.min(currentPage * 5, page_posts.count)}</strong> of <strong>{page_posts.count}</strong> posts
         </div>
         <MyPagination params={{count: page_posts.count, next: page_posts.next, previous: page_posts.previous, page_size: 10, currentPage: currentPage}}></MyPagination>
       </CardFooter>

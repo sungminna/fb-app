@@ -14,14 +14,13 @@ import 'firebaseui/dist/firebaseui.css';
 
 import 'firebase/compat/auth';
 
-import { auth, app } from "@/lib/firebase/auth"
+import { auth } from "@/lib/firebase/auth"
 import { useEffect, useState } from "react"
 
-import { getAuth, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
-import { headers } from 'next/headers';
 
 export default function LoginForm() {
 
@@ -30,7 +29,6 @@ export default function LoginForm() {
   const [user, setUser] = useState("");
   const [isAuth ,setIsAuth] = useState(false);
   const [username, setUsername] = useState("");
-  const [token, setToken] = useState("");
 
   const provider = new GoogleAuthProvider();
   

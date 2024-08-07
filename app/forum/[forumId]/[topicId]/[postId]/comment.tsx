@@ -2,16 +2,12 @@
 import { Input } from "@/components/ui/input"
 import {
     Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
 
 import { useState, useEffect } from "react";
-import { auth, app } from "@/lib/firebase/auth"
+import { auth } from "@/lib/firebase/auth"
 import { useRouter } from 'next/navigation'
 
 
@@ -22,8 +18,6 @@ export function CommentInput({ params }: {params: {postId: string}}) {
     const [logged, setLogged] = useState(true);
     const getToken = async() => {
         try{
-            console.log(auth.currentUser);
-
             if(!auth.currentUser){
                 console.log("no user signed in");
                 setLogged(false);
@@ -58,7 +52,6 @@ export function CommentInput({ params }: {params: {postId: string}}) {
             if (!res.ok){
                 throw new Error(`HTTP error! statys: ${res.status}`);
             }
-            console.log(res);
             router.refresh();
         }
         catch(error){

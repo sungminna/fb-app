@@ -29,10 +29,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import { auth, app } from "@/lib/firebase/auth"
+import { auth } from "@/lib/firebase/auth"
 
-import { useState } from "react"
-import { Description } from "@radix-ui/react-toast";
+
 
 const getToken = async() => {
   try{
@@ -57,7 +56,6 @@ const getToken = async() => {
         'Content-Type': 'application/json', 
         'Authorization': `Bearer ${token}`, 
       }, 
-      //next: { revalidate: 0}, 
       cache: "no-cache", 
     });
     if(!res.ok){
@@ -68,13 +66,11 @@ const getToken = async() => {
 
 export default async function Component() {
 
-    //const forums = [{'forumName': 'forum1', 'description': 'description1'}, {'forumName': 'forum2', 'description': 'description2'}, {'forumName': 'forum3', 'description': 'description3'}, ]
     let forums = [];
     try{
       const page_forums = await getForumList();
       forums = page_forums.results;
-      console.log(forums);
-    }
+s    }
     catch(error){
       console.log(error);
     }

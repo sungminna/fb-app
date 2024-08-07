@@ -9,10 +9,9 @@ import {
   import { Input } from "@/components/ui/input"
   import { Label } from "@/components/ui/label"
   import { Textarea } from "@/components/ui/textarea"
-  import Link from "next/link";
   import { Button } from "@/components/ui/button"
 
-  import { auth, app } from "@/lib/firebase/auth"
+  import { auth } from "@/lib/firebase/auth"
   import { useRouter } from 'next/navigation'
   import { useState } from "react"
 
@@ -50,7 +49,6 @@ export default function Component() {
             if (!res.ok){
                 throw new Error(`HTTP error! statys: ${res.status}`);
             }
-            console.log(res);
             router.push('/forum');
             router.refresh();
         }

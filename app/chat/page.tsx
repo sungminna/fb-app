@@ -1,9 +1,7 @@
-import Image from "next/image"
 import { MoreHorizontal } from "lucide-react"
 
 import Link from "next/link";
 import { JoinButton } from "./joinBtn";
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -29,10 +27,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import { auth, app } from "@/lib/firebase/auth"
+import { auth } from "@/lib/firebase/auth"
 
-import { useState } from "react"
-import { Description } from "@radix-ui/react-toast";
 
 const getToken = async() => {
   try{

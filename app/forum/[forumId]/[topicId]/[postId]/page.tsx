@@ -41,7 +41,6 @@ import { getToken } from "@/lib/firebase/getToken";
         'Content-Type': 'application/json', 
         'Authorization': `Bearer ${token}`, 
       }, 
-      //next: { revalidate: 0}, 
       cache: "no-cache", 
     });
     if(!res.ok){
@@ -59,7 +58,6 @@ import { getToken } from "@/lib/firebase/getToken";
         'Content-Type': 'application/json', 
         'Authorization': `Bearer ${token}`, 
       }, 
-      //next: { revalidate: 0}, 
       cache: "no-cache", 
     });
     if(!res.ok){
@@ -83,7 +81,6 @@ export default async function Component({ params }: {params: {postId:string, top
     try{
         const page_comments = await getCommentList(params.postId);
         comments = page_comments.results;
-        console.log(comments);
     }
     catch(error){
         console.log(error);

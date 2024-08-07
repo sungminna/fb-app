@@ -52,8 +52,6 @@ const getGroupList = async () => {
   }
 
 export default function Component() {
-  const router = useRouter();
-
   const createGroup = async () => {
     const token = await getToken();
     const res = await fetch('http://localhost:8000/community/groups/', {
@@ -82,7 +80,6 @@ export default function Component() {
         'Content-Type': 'application/json', 
         'Authorization': `Bearer ${token}`, 
       }, 
-      //next: { revalidate: 0}, 
       cache: "no-cache", 
     });
     if(!res.ok){
@@ -117,7 +114,6 @@ export default function Component() {
         'Content-Type': 'application/json', 
         'Authorization': `Bearer ${token}`, 
       }, 
-      //next: { revalidate: 0}, 
       cache: "no-cache", 
       body: JSON.stringify({'group_id': id}), 
     });
@@ -134,7 +130,6 @@ export default function Component() {
         'Content-Type': 'application/json', 
         'Authorization': `Bearer ${token}`, 
       }, 
-      //next: { revalidate: 0}, 
       cache: "no-cache", 
     });
     if(!res.ok){
@@ -154,8 +149,6 @@ export default function Component() {
         setGroups(groups);
         let arr = userGroupList.map(group => group.id);
         setGroupId(arr);
-        console.log(arr);
-        console.log(groups);
       }
       catch (error) {
           console.error(error);

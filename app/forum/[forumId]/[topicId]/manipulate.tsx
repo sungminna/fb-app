@@ -23,13 +23,11 @@ export function ManipuateButton({ params }: {params: {postUserId: string, postId
                   'Content-Type': 'application/json', 
                   'Authorization': `Bearer ${token}`, 
                 }, 
-                //credentials: 'include', 
               });
             if (!res.ok){
                 throw new Error(`HTTP error! statys: ${res.status}`);
             }
             const userData = await res.json()
-            //console.log(res);
             return userData;
         }
         catch(error){

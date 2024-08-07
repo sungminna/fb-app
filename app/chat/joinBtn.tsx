@@ -5,9 +5,7 @@ import { Button } from "@/components/ui/button"
 
 import { useState, useEffect } from "react";
 
-import Link from "next/link";
 import { getToken } from "@/lib/firebase/getToken";
-import { join } from "path";
 
 
 
@@ -28,7 +26,6 @@ export function JoinButton({ params }: {params: {chatroomId: string}}) {
                 throw new Error(`HTTP error! status: ${res.status}`);
             }
             const userData = await res.json()
-            //console.log(res);
             return userData;
         }
         catch(error){
@@ -51,7 +48,6 @@ export function JoinButton({ params }: {params: {chatroomId: string}}) {
                 throw new Error(`HTTP error! status: ${res.status}`);
             }
             const userData = await res.json()
-            //console.log(res);
             return userData;
         }
         catch(error){
@@ -63,7 +59,6 @@ export function JoinButton({ params }: {params: {chatroomId: string}}) {
         async function fetchData(){
             try{
                 const userData = await getIsParticipant();
-                console.log(userData);
                 if(userData.participant == null){
                     setJoined(false);
                 }

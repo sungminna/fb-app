@@ -37,7 +37,6 @@ export default function Component({ params }: {params: {forumId: string}}) {
             if (!res.ok){
                 throw new Error(`HTTP error! statys: ${res.status}`);
             }
-            console.log(res);
             router.push(`/forum/${params.forumId}`);
             router.refresh();
         }

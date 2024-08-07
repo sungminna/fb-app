@@ -39,7 +39,6 @@ const getTopicList = async (forumId: string) => {
       'Content-Type': 'application/json', 
       'Authorization': `Bearer ${token}`, 
     }, 
-    //next: { revalidate: 0}, 
     cache: "no-cache", 
   });
   if(!res.ok){
@@ -49,12 +48,10 @@ const getTopicList = async (forumId: string) => {
 }
 
 export default async function Component({ params }: {params: {forumId: string}}) {
-    //const forums = [{'topicName': 'topic1', 'description': 'description1'}, {'topicName': 'topic2', 'description': 'description2'}, {'topicName': 'topic3', 'description': 'description3'}, ]
     let topics = [];
     try{
       const page_topics = await getTopicList(params.forumId)
       topics = page_topics.results;
-      console.log(topics);
     }
     catch(error){
       console.log(error);

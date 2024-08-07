@@ -24,10 +24,8 @@ import { getToken } from "@/lib/firebase/getToken";
 
 export default function Component({ params }: {params: {forumId: string, topicId: string, username:string, postId:string}}) {
 
-    const [author, setAuthor] = useState("");
     const [content, setContent] = useState("");
     const [logged, setLogged] = useState(true);
-    const [token, seteToken] = useState("");
 
     useEffect(() => {
       async function fetchData(){
@@ -80,7 +78,6 @@ export default function Component({ params }: {params: {forumId: string, topicId
             if (!res.ok){
                 throw new Error(`HTTP error! statys: ${res.status}`);
             }
-            console.log(res);
             router.push(`/forum/${params.forumId}/${params.topicId}`);
             router.refresh();
         }
@@ -101,7 +98,6 @@ export default function Component({ params }: {params: {forumId: string, topicId
           if (!res.ok){
               throw new Error(`HTTP error! statys: ${res.status}`);
           }
-          console.log(res);
           router.push(`/forum/${params.forumId}/${params.topicId}`);
           router.refresh();
       }
