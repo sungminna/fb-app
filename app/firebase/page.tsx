@@ -21,6 +21,7 @@ import { signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } f
 
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
+import { getTokenServer } from "@/lib/firebase/getToken";
 
 export default function LoginForm() {
 
@@ -35,7 +36,6 @@ export default function LoginForm() {
   const CheckCurrentUser = () => {
     const user = auth.currentUser;
     if(user){
-      console.log(user);
       setIsAuth(true);
     }
     else{
@@ -55,10 +55,6 @@ export default function LoginForm() {
       }
       const user = auth.currentUser;
       const token = await user.getIdToken();
-      console.log(token);
-      console.log(username);
-      //const token = auth.currentUser?.getIdToken(true);
-      //send token via https
       
       const res = await fetch('http://localhost:8000/local/firebase-token/', {
         method: 'POST', 
@@ -88,6 +84,7 @@ export default function LoginForm() {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         CheckCurrentUser();
+        getTokenServer();
     }
     catch(error){
         console.log(error);
@@ -101,6 +98,7 @@ export default function LoginForm() {
         const user = userCredential.user;
         setUser(user);
         CheckCurrentUser();
+        getTokenServer();
     }
     catch(error){
         console.log(error);
@@ -118,6 +116,7 @@ export default function LoginForm() {
         setUsername(username);
         console.log(token);
         CheckCurrentUser();
+        getTokenServer();
     }
     catch(error){
         console.log(error);
