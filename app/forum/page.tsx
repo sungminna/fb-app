@@ -31,6 +31,7 @@ import {
 
 import { auth } from "@/lib/firebase/auth"
 
+import { Forum } from "@/app/models/communityModel"
 
 
 const getToken = async() => {
@@ -70,7 +71,7 @@ export default async function Component() {
     try{
       const page_forums = await getForumList();
       forums = page_forums.results;
-s    }
+    }
     catch(error){
       console.log(error);
     }
@@ -110,7 +111,7 @@ s    }
           <TableBody>
             
             {
-                forums.map((forum, index) => (
+                forums.map((forum: Forum, index: number) => (
                     <TableRow key={ index }>
                         <TableCell className="hidden sm:table-cell">
                             <Image

@@ -32,6 +32,7 @@ import { CommentInput } from "./comment"
 
 import { getToken } from "@/lib/firebase/getToken";
 
+import { Comment } from "@/app/models/communityModel";
 
   const getPost = async (forumId: string, topicId:string, postId:string) => {
     const token = await getToken();
@@ -138,7 +139,7 @@ export default async function Component({ params }: {params: {postId:string, top
           <div className="font-semibold">Comments</div>
           <dl className="grid gap-3">
             {
-                comments.map((comment, index) => (
+                comments.map((comment: Comment, index: number) => (
                     <div className="flex items-center justify-between" key={ index }>
                         <dt className="text-muted-foreground">{comment.username}</dt>
                       <dd>{comment.content}</dd>

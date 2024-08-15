@@ -33,6 +33,7 @@ import { setRequestMeta } from "next/dist/server/request-meta"
 import { Button } from "@/components/ui/button"
 import { create } from "domain"
 
+import { Group } from "@/app/models/communityModel";
 
 const getGroupList = async () => {
     const token = await getToken();
@@ -141,22 +142,23 @@ export default function Component() {
   
     const [groups, setGroups] = useState([]);
     const [groupName, setGroupName] = useState("");
-    const [groupId, setGroupId] = useState([]);
+    const [groupsId, setGroupsId] = useState<String[]>([]);
     const fetchData = useCallback(async() => {
       try{
         const groups = await getGroupList();
         const userGroupList = await getUserGroupList();
         setGroups(groups);
-        let arr = userGroupList.map(group => group.id);
-        setGroupId(arr);
+        let arr = userGroupList.map((group: Group) => group.id.toString());
+        setGroupsId(arr);
       }
       catch (error) {
           console.error(error);
       }
     }, []);
+
     useEffect(() => {
         fetchData();
-    }, [])
+    }, [fetchData])
 
   return (
     <Card>
@@ -202,7 +204,7 @@ export default function Component() {
           </TableHeader>
           <TableBody>
             {
-                groups.map((group, index) => (
+                groups.map((group: Group, index: number) => (
                   <TableRow key={ index }>
                     <TableCell className="font-medium">{group.id}</TableCell>
                     <TableCell>{group.name}</TableCell>
@@ -211,12 +213,12 @@ export default function Component() {
                     </TableCell>
                     <TableCell>
                       <Button onClick={() => joinGroup(group.id)}
-                        disabled={(groupId.includes(group.id))}
+                        disabled={(groupsId.includes(group.id.toString()))}
                         >Join</Button>
                     </TableCell>
                     <TableCell>
                       <Button onClick={() => leaveGroup(group.id)}
-                        disabled={!(groupId.includes(group.id))}
+                        disabled={!(groupsId.includes(group.id.toString()))}
                         >Leave</Button>
                     </TableCell>
                   </TableRow>

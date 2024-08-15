@@ -30,6 +30,8 @@ import {
 } from "@/components/ui/table"
 import { getToken } from "@/lib/firebase/getToken";
 
+import { Topic } from "@/app/models/communityModel"
+
 
 const getTopicList = async (forumId: string) => {
   const token = await getToken();
@@ -93,7 +95,7 @@ export default async function Component({ params }: {params: {forumId: string}})
           <TableBody>
             
             {
-                topics.map((topic, index) => (
+                topics.map((topic: Topic, index: number) => (
                     <TableRow key={ index }>
                         <TableCell className="hidden sm:table-cell">
                             <Image

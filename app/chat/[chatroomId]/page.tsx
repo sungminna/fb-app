@@ -16,10 +16,12 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import React from 'react';
 import { getToken } from "@/lib/firebase/getToken";
 
+import { Message } from "@/app/models/chatModel"
+
 export default function ChatRoomList({ params }: {params: {chatroomId: string}}) {
 
   const [text, setText] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [id, setId] = useState("");
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [initial, setInitial] = useState(1);
@@ -34,7 +36,7 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
   const wsRef = useRef<WebSocket | null>(null);
 
 
-  const socketWork = async() => {
+  const socketWork = useCallback(async() => {
     try{
       const token = await getToken();
       const ws = new WebSocket(`ws://localhost:8000/ws/room/${params.chatroomId}/messages/?token=${token}`)
@@ -48,14 +50,7 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
         const newMessage = JSON.parse(event.data);
         setMessages((prevMessages) => {
           if (prevMessages.length === 0 || prevMessages[prevMessages.length - 1].id !== newMessage.id) {
-            return [...prevMessages, {
-              id: newMessage.id, 
-              chat: newMessage.chat, 
-              sender: newMessage.sender,
-              sender_name: newMessage.sender_name,
-              text: newMessage.text,
-              timestamp: newMessage.timestamp
-            }];
+            return [...prevMessages, newMessage];
           }
           return prevMessages;
         });
@@ -72,7 +67,7 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
     }catch(error){
       console.log(error);
     }
-  }
+  }, [params.chatroomId]);
 
   const getUserId = async() => {
     try{
@@ -95,7 +90,7 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
     }
 }
   
-  const sendMessageData = async () => {
+  const sendMessageData = useCallback(async () => {
     try{
       if(wsRef.current && wsRef.current.readyState === WebSocket.OPEN){
         wsRef.current.send(JSON.stringify({
@@ -111,7 +106,7 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
     catch(error){
       console.log(error);
     }
-  }
+  }, [text, params.chatroomId]);
 
   const loadMoreMessages = useCallback(async () => {
     if(!hasMore || isLoadingMore) return;
@@ -143,7 +138,7 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
       else {
         setMessages(prevMessages => {
           // 중복 메시지 제거
-          const uniqueNewMessages = newMessages.filter(newMsg => 
+          const uniqueNewMessages = newMessages.filter((newMsg: Message)=> 
             !prevMessages.some(prevMsg => prevMsg.id === newMsg.id)
           );
           return [...uniqueNewMessages.reverse(), ...prevMessages];
@@ -162,7 +157,7 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
     finally{
       setIsLoadingMore(false);
     }
-  }, [hasMore, page]);
+  }, [hasMore, page, isLoadingMore, params.chatroomId]);
 
 
 
@@ -180,14 +175,14 @@ useEffect(() => {
 }, [])
 
 
-const handleScroll = useCallback((event) => {
-  setPrevScroll(event.target.scrollHeight);
-  if (event.target.scrollTop === 0 && hasMore && !isLoadingMore) {
+const handleScroll = useCallback(async (event: React.UIEvent<HTMLDivElement>) => {
+  setPrevScroll(event.currentTarget.scrollHeight);
+  if (event.currentTarget.scrollTop === 0 && hasMore && !isLoadingMore) {
     loadMoreMessages();
-    const pos = event.target.scrollHeight - prevScroll;
-    event.target.scrollTo({top:pos});
+    const pos = event.currentTarget.scrollHeight - prevScroll;
+    event.currentTarget.scrollTo({top: pos});
   }
-}, [hasMore, isLoadingMore]);
+}, [hasMore, isLoadingMore, loadMoreMessages, prevScroll]);
 
 
 
@@ -197,7 +192,7 @@ useEffect(() => {
     lastMessageRef.current.scrollIntoView({ behavior: 'instant' });
     setInitial(0);
   }
-}, [messages]);
+}, [messages, initial]);
 
 
   useEffect(() => {
@@ -208,7 +203,7 @@ useEffect(() => {
         wsRef.current.close();
       }
     };
-  }, []);
+  }, [socketWork, loadMoreMessages]);
 
 
 

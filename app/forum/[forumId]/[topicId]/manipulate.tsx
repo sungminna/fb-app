@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import Link from "next/link";
 import { getToken } from "@/lib/firebase/getToken";
@@ -46,7 +46,7 @@ export function ManipuateButton({ params }: {params: {postUserId: string, postId
             }
         }
         fetchData();
-    }, [])
+    }, [params.postUserId])
 
   return(
     <Link href={`${params.topicId}/${params.postId}/modifyPost`}>

@@ -23,13 +23,15 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 import { getTokenServer } from "@/lib/firebase/getToken";
 
+import { User } from "firebase/auth";
+
 export default function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState<User | null>(null);
   const [isAuth ,setIsAuth] = useState(false);
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState<String | null>(null);
 
   const provider = new GoogleAuthProvider();
   
@@ -78,7 +80,7 @@ export default function LoginForm() {
     }
   }
 
-  const SignUp = async (e: React.FormEvent<HTMLInputElement>) => {
+  const SignUp = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try{
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -91,7 +93,7 @@ export default function LoginForm() {
     }
   }
 
-  const Login = async (e: React.FormEvent<HTMLInputElement>) => {
+  const Login = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try{
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -105,7 +107,7 @@ export default function LoginForm() {
     }
   }
 
-  const Google = async (e: React.FormEvent<HTMLInputElement>) => {
+  const Google = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try{
         const result = await signInWithPopup(auth, provider);
@@ -123,7 +125,7 @@ export default function LoginForm() {
     }
   }
 
-  const Logout = async (e: React.FormEvent<HTMLInputElement>) => {
+  const Logout = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try{
         await signOut(auth);

@@ -29,6 +29,7 @@ import {
 
 import { auth } from "@/lib/firebase/auth"
 
+import { ChatRoom } from "@/app/models/chatModel"
 
 const getToken = async() => {
   try{
@@ -104,7 +105,7 @@ export default async function Component() {
           <TableBody>
             
             {
-                chatrooms.map((chatroom, index) => (
+                chatrooms.map((chatroom: ChatRoom, index: number) => (
                     <TableRow key={ index }>
                         <TableCell className="font-medium">
                             <Link href={{pathname: '/chat/' + chatroom.id, 

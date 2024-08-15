@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import { getToken } from "@/lib/firebase/getToken";
 
@@ -12,7 +12,7 @@ import { getToken } from "@/lib/firebase/getToken";
 export function JoinButton({ params }: {params: {chatroomId: string}}) {
     const [joined, setJoined] = useState(true);
 
-    const getIsParticipant = async() => {
+    const getIsParticipant = useCallback(async() => {
         try{
             const token = await getToken();
             const res = await fetch(`http://localhost:8000/chat/chats/check?room_id=${params.chatroomId}`, {
@@ -31,7 +31,7 @@ export function JoinButton({ params }: {params: {chatroomId: string}}) {
         catch(error){
             console.log(error);
         }
-    }
+    }, [params.chatroomId]);
 
     const joinChat = async() => {
         try{
@@ -71,7 +71,7 @@ export function JoinButton({ params }: {params: {chatroomId: string}}) {
             }
         }
         fetchData();
-    }, [])
+    }, [getIsParticipant])
 
   return(
     <Button

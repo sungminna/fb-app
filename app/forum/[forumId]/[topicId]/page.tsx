@@ -15,6 +15,10 @@ import { MyPagination } from "@/app/personalComponent/pagination";
 import { ManipuateButton } from "./manipulate";
 import { getToken } from "@/lib/firebase/getToken";
 
+import { Post, PostListResponse } from "@/app/models/communityModel"
+
+
+
   const getPostList = async (forumId: string, topicId:string, page: number = 1) => {
     const token = await getToken();
     const res = await fetch(`http://localhost:8000/community/posts/?forum_id=${forumId}&topic_id=${topicId}&page=${page}`, {
@@ -36,8 +40,8 @@ export default async function Component({ params, searchParams }: {
   searchParams: {page?: string}
 }) {
     const currentPage = Number(searchParams.page) || 1;
-    let posts = [];
-    let page_posts = {};
+    let posts: Post[] = [];
+    let page_posts: PostListResponse = {count: null, next: null, previous: null, results: []};
     try{
       page_posts = await getPostList(params.forumId, params.topicId, currentPage);
       posts = page_posts.results;

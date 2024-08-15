@@ -11,7 +11,7 @@ import {
   import { Button } from "@/components/ui/button"
 
   import { useRouter } from 'next/navigation'
-  import { useEffect, useState } from "react"
+  import { useEffect, useState, useCallback } from "react"
 
   import { AlertCircle } from "lucide-react" 
 import {
@@ -27,22 +27,9 @@ export default function Component({ params }: {params: {forumId: string, topicId
     const [content, setContent] = useState("");
     const [logged, setLogged] = useState(true);
 
-    useEffect(() => {
-      async function fetchData(){
-          try{
-              const data = await getPostData();
-              await setContent(data.content);
-          }
-          catch (error) {
-              console.error(error);
-          }
-      }
-      fetchData();
-  }, [])
-
     const router = useRouter();
 
-    const getPostData = async () => {
+    const getPostData = useCallback(async () => {
       try{
           const token = await getToken();
           const res = await fetch(`http://localhost:8000/community/posts/${params.postId}`, {
@@ -61,8 +48,7 @@ export default function Component({ params }: {params: {forumId: string, topicId
       catch(error){
           console.log(error);
       }
-
-  }
+    }, [params.postId]);
 
     const sendPostData = async () => {
         try{
@@ -105,6 +91,20 @@ export default function Component({ params }: {params: {forumId: string, topicId
           console.log(error);
       }
   }
+
+  useEffect(() => {
+    async function fetchData(){
+        try{
+            const data = await getPostData();
+            await setContent(data.content);
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
+    fetchData();
+}, [getPostData]);
+
 
 
     return (
