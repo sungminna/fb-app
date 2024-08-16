@@ -1,3 +1,4 @@
+'use client';
 import Image from "next/image"
 import { MoreHorizontal } from "lucide-react"
 
@@ -29,13 +30,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { getToken } from "@/lib/firebase/getToken";
-
 import { Topic } from "@/app/models/communityModel"
 
 
 const getTopicList = async (forumId: string) => {
   const token = await getToken();
-  const res = await fetch(`http://localhost:8000/community/topics/?forum_id=${forumId}`, {
+  const res = await fetch(`https://sungminna.com/api/community/topics/?forum_id=${forumId}`, {
     method: 'GET', 
     headers: {
       'Content-Type': 'application/json', 
@@ -50,15 +50,14 @@ const getTopicList = async (forumId: string) => {
 }
 
 export default async function Component({ params }: {params: {forumId: string}}) {
-    let topics = [];
-    try{
-      const page_topics = await getTopicList(params.forumId)
-      topics = page_topics.results;
-    }
-    catch(error){
-      console.log(error);
-    }
-
+  let topics = [];
+  try{
+    const page_topics = await getTopicList(params.forumId)
+    topics = page_topics.results;
+  }
+  catch(error){
+    console.log(error);
+  }
 
   return (
     <Card>
@@ -93,47 +92,46 @@ export default async function Component({ params }: {params: {forumId: string}})
             </TableRow>
           </TableHeader>
           <TableBody>
-            
             {
-                topics.map((topic: Topic, index: number) => (
-                    <TableRow key={ index }>
-                        <TableCell className="hidden sm:table-cell">
-                            <Image
-                            alt="Product image"
-                            className="aspect-square rounded-md object-cover"
-                            height="64"
-                            src="/placeholder.svg"
-                            width="64"
-                            />
-                        </TableCell>
-                        <TableCell className="font-medium">
-                            <Link href={`/forum/${params.forumId}/${topic.id}`}>{topic.title}</Link>
-                        </TableCell>
-                        <TableCell>
-                            <Badge variant="outline">Draft</Badge>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">{topic.description}</TableCell>
-                        <TableCell className="hidden md:table-cell">25</TableCell>
-                        <TableCell className="hidden md:table-cell">
-                            {topic.created_at}
-                        </TableCell>
-                        <TableCell>
-                            <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button aria-haspopup="true" size="icon" variant="ghost">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Toggle menu</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Delete</DropdownMenuItem>
-                            </DropdownMenuContent>
-                            </DropdownMenu>
-                        </TableCell>
-                    </TableRow>
-                ))
+              topics.map((topic: Topic, index: number) => (
+                <TableRow key={ index }>
+                    <TableCell className="hidden sm:table-cell">
+                        <Image
+                        alt="Product image"
+                        className="aspect-square rounded-md object-cover"
+                        height="64"
+                        src="/placeholder.svg"
+                        width="64"
+                        />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                        <Link href={`/forum/${params.forumId}/${topic.id}`}>{topic.title}</Link>
+                    </TableCell>
+                    <TableCell>
+                        <Badge variant="outline">Draft</Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">{topic.description}</TableCell>
+                    <TableCell className="hidden md:table-cell">25</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                        {topic.created_at}
+                    </TableCell>
+                    <TableCell>
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                    </TableCell>
+                </TableRow>
+              ))
             }
 
           </TableBody>

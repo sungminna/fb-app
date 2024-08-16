@@ -1,3 +1,4 @@
+'use client';
 import {
   ChevronLeft,
   ChevronRight,
@@ -5,7 +6,6 @@ import {
   MoreVertical,
   Truck,
 } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -27,16 +27,14 @@ import {
   PaginationContent,
   PaginationItem,
 } from "@/components/ui/pagination"
-
+import { Separator } from "@/components/ui/separator"
 import { CommentInput } from "./comment"
-
 import { getToken } from "@/lib/firebase/getToken";
-
 import { Comment } from "@/app/models/communityModel";
 
   const getPost = async (forumId: string, topicId:string, postId:string) => {
     const token = await getToken();
-    const res = await fetch(`http://localhost:8000/community/posts/${postId}`, {
+    const res = await fetch(`https://sungminna.com/api/community/posts/${postId}`, {
       method: 'GET', 
       headers: {
         'Content-Type': 'application/json', 
@@ -53,7 +51,7 @@ import { Comment } from "@/app/models/communityModel";
 
   const getCommentList = async (postId:string) => {
     const token = await getToken();
-    const res = await fetch(`http://localhost:8000/community/comments/?post_id=${postId}`, {
+    const res = await fetch(`https://sungminna.com/api/community/comments/?post_id=${postId}`, {
       method: 'GET', 
       headers: {
         'Content-Type': 'application/json', 
@@ -67,7 +65,6 @@ import { Comment } from "@/app/models/communityModel";
     return res.json();
   }
 
-import { Separator } from "@/components/ui/separator"
 
 export default async function Component({ params }: {params: {postId:string, topicId: string, forumId: string}}) {
     let post = [];
@@ -86,7 +83,6 @@ export default async function Component({ params }: {params: {postId:string, top
     catch(error){
         console.log(error);
     }
-
 
 
   return (

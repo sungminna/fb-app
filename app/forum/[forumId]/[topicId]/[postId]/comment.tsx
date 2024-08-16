@@ -1,64 +1,51 @@
 'use client'
 import { Input } from "@/components/ui/input"
-import {
-    Card,
-} from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-
-
 import { useState, useEffect } from "react";
 import { auth } from "@/lib/firebase/auth"
 import { useRouter } from 'next/navigation'
-
-
+import { getToken } from "@/lib/firebase/getToken";
 
 export function CommentInput({ params }: {params: {postId: string}}) {
 
-    const [content, setContent] = useState("");
-    const [logged, setLogged] = useState(true);
-    const getToken = async() => {
-        try{
-            if(!auth.currentUser){
-                console.log("no user signed in");
-                setLogged(false);
-                return;
-              }
+  const [content, setContent] = useState("");
+  const [logged, setLogged] = useState(true);
+
+  const router = useRouter();
+  const sendCommentData = async () => {
+    try{
+        const token = await getToken();
+        const res = await fetch('https://sungminna.com/api/community/comments/', {
+            method: 'POST', 
+            headers: {
+              'Content-Type': 'application/json', 
+              'Authorization': `Bearer ${token}`, 
+            }, 
+            body: JSON.stringify({'content': content, 'post': params.postId}), 
+          });
+        if (!res.ok){
+            throw new Error(`HTTP error! statys: ${res.status}`);
+        }
+        router.refresh();
+    }
+    catch(error){
+        console.log(error);
+    }
+  }
+  
+  useEffect(() => {
+    async function fetchData(){
+        const token = await getToken();
+        if(token){
             setLogged(true);
-            const user = auth.currentUser;
-            const token = await user.getIdToken();
-            return token;
         }
-        catch(error){
-            console.log(error);
+        else{
+            setLogged(false);
         }
     }
-
-    useEffect(() => {
-        getToken();
-    }, [])
-
-    const router = useRouter();
-    const sendCommentData = async () => {
-        try{
-            const token = await getToken();
-            const res = await fetch('http://localhost:8000/community/comments/', {
-                method: 'POST', 
-                headers: {
-                  'Content-Type': 'application/json', 
-                  'Authorization': `Bearer ${token}`, 
-                }, 
-                body: JSON.stringify({'content': content, 'post': params.postId}), 
-              });
-            if (!res.ok){
-                throw new Error(`HTTP error! statys: ${res.status}`);
-            }
-            router.refresh();
-        }
-        catch(error){
-            console.log(error);
-        }
-
-    }
+    fetchData();
+  }, []);
 
   return(
     <Card>

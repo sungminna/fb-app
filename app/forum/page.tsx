@@ -1,8 +1,7 @@
+'use client';
 import Image from "next/image"
 import { MoreHorizontal } from "lucide-react"
-
 import Link from "next/link";
-
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -28,53 +27,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
-import { auth } from "@/lib/firebase/auth"
-
 import { Forum } from "@/app/models/communityModel"
+import { getToken } from "@/lib/firebase/getToken";
 
 
-const getToken = async() => {
-  try{
-      if(!auth.currentUser){
-          console.log("no user signed in");
-          return;
-        }
-      const user = auth.currentUser;
-      const token = await user.getIdToken();
-      return token;
+const getForumList = async () => {
+  const token = await getToken();
+  const res = await fetch('https://sungminna.com/api/community/forums/', {
+    method: 'GET', 
+    headers: {
+      'Content-Type': 'application/json', 
+      'Authorization': `Bearer ${token}`, 
+    }, 
+    cache: "no-cache", 
+  });
+  if(!res.ok){
+    throw new Error('Faild to fetch forum data');
   }
-  catch(error){
-      console.log(error);
-  }
+  return res.json();
 }
-
-  const getForumList = async () => {
-    const token = await getToken();
-    const res = await fetch('http://localhost:8000/community/forums/', {
-      method: 'GET', 
-      headers: {
-        'Content-Type': 'application/json', 
-        'Authorization': `Bearer ${token}`, 
-      }, 
-      cache: "no-cache", 
-    });
-    if(!res.ok){
-      throw new Error('Faild to fetch forum data');
-    }
-    return res.json();
-  }
 
 export default async function Component() {
 
-    let forums = [];
-    try{
-      const page_forums = await getForumList();
-      forums = page_forums.results;
-    }
-    catch(error){
-      console.log(error);
-    }
+  let forums = [];
+  try{
+    const page_forums = await getForumList();
+    forums = page_forums.results;
+  }
+  catch(error){
+    console.log(error);
+  }
 
   return (
     <Card>

@@ -9,34 +9,21 @@ import {
   import { Input } from "@/components/ui/input"
   import { Label } from "@/components/ui/label"
   import { Button } from "@/components/ui/button"
-
-  import { auth } from "@/lib/firebase/auth"
   import { useRouter } from 'next/navigation'
   import { useState } from "react"
+  import { getToken } from "@/lib/firebase/getToken";
+
 
 export default function Component() {
 
     const [roomname, setRoomname] = useState("");
-    const getToken = async() => {
-        try{
-            if(!auth.currentUser){
-                console.log("no user signed in");
-                return;
-              }
-            const user = auth.currentUser;
-            const token = await user.getIdToken();
-            return token;
-        }
-        catch(error){
-            console.log(error);
-        }
-    }
+
     const router = useRouter();
 
     const sendChatRoomData = async () => {
         try{
             const token = await getToken();
-            const res = await fetch('http://localhost:8000/chat/chatrooms/', {
+            const res = await fetch('https://sungminna.com/api/chat/chatrooms/', {
                 method: 'POST', 
                 headers: {
                   'Content-Type': 'application/json', 

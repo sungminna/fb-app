@@ -1,5 +1,4 @@
 "use client"
-
 import {
   Card,
   CardContent,
@@ -7,17 +6,14 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { useRouter } from 'next/navigation'
-
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from "@/components/ui/table"
-
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -26,24 +22,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import Link from "next/link";
 import { getToken } from "@/lib/firebase/getToken";
 import { useCallback, useEffect, useState } from "react"
-import { setRequestMeta } from "next/dist/server/request-meta"
 import { Button } from "@/components/ui/button"
-import { create } from "domain"
-
 import { Group } from "@/app/models/communityModel";
 
 const getGroupList = async () => {
     const token = await getToken();
-    const res = await fetch('http://localhost:8000/community/groups', {
+    const res = await fetch('https://sungminna.com/api/community/groups', {
       method: 'GET', 
       headers: {
         'Content-Type': 'application/json', 
         'Authorization': `Bearer ${token}`, 
       }, 
-      //next: { revalidate: 0}, 
       cache: "no-cache", 
     });
     if(!res.ok){
@@ -55,13 +46,12 @@ const getGroupList = async () => {
 export default function Component() {
   const createGroup = async () => {
     const token = await getToken();
-    const res = await fetch('http://localhost:8000/community/groups/', {
+    const res = await fetch('https://sungminna.com/api/community/groups/', {
       method: 'POST', 
       headers: {
         'Content-Type': 'application/json', 
         'Authorization': `Bearer ${token}`, 
       }, 
-      //next: { revalidate: 0}, 
       cache: "no-cache", 
       body: JSON.stringify({'name': groupName}), 
     });
@@ -75,7 +65,7 @@ export default function Component() {
 
   const deleteGroup = async (id: string) => {
     const token = await getToken();
-    const res = await fetch(`http://localhost:8000/community/groups/${id}`, {
+    const res = await fetch(`https://sungminna.com/api/community/groups/${id}`, {
       method: 'DELETE', 
       headers: {
         'Content-Type': 'application/json', 
@@ -91,13 +81,12 @@ export default function Component() {
 
   const joinGroup = async (id:string) => {
     const token = await getToken();
-    const res = await fetch(`http://localhost:8000/community/users/join_group/`, {
+    const res = await fetch(`https://sungminna.com/api/community/users/join_group/`, {
       method: 'PATCH', 
       headers: {
         'Content-Type': 'application/json', 
         'Authorization': `Bearer ${token}`, 
       }, 
-      //next: { revalidate: 0}, 
       cache: "no-cache", 
       body: JSON.stringify({'group_id': id}), 
     });
@@ -109,7 +98,7 @@ export default function Component() {
 
   const leaveGroup = async (id:string) => {
     const token = await getToken();
-    const res = await fetch(`http://localhost:8000/community/users/leave_group/`, {
+    const res = await fetch(`https://sungminna.com/api/community/users/leave_group/`, {
       method: 'PATCH', 
       headers: {
         'Content-Type': 'application/json', 
@@ -125,7 +114,7 @@ export default function Component() {
   }
   const getUserGroupList = async () => {
     const token = await getToken();
-    const res = await fetch('http://localhost:8000/community/users/groups', {
+    const res = await fetch('https://sungminna.com/api/community/users/groups', {
       method: 'GET', 
       headers: {
         'Content-Type': 'application/json', 
@@ -140,25 +129,31 @@ export default function Component() {
   } 
 
   
-    const [groups, setGroups] = useState([]);
-    const [groupName, setGroupName] = useState("");
-    const [groupsId, setGroupsId] = useState<String[]>([]);
-    const fetchData = useCallback(async() => {
-      try{
-        const groups = await getGroupList();
-        const userGroupList = await getUserGroupList();
-        setGroups(groups);
-        let arr = userGroupList.map((group: Group) => group.id.toString());
-        setGroupsId(arr);
-      }
-      catch (error) {
-          console.error(error);
-      }
-    }, []);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [groupName, setGroupName] = useState("");
+  const [groupsId, setGroupsId] = useState<String[]>([]);
+  const fetchData = useCallback(async() => {
+  try{
+    const groups = await getGroupList();
+    const userGroupList = await getUserGroupList();
+    setGroups(groups);
+    let arr: String[] = [];
+    if (userGroupList.length !== 0){
+      arr = userGroupList.map((group: Group) => group.id.toString());
+    }
+    else{
+      arr = [];
+    }
+    setGroupsId(arr);
+  }
+  catch (error) {
+    console.error(error);
+  }
+  }, []);
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData])
+  useEffect(() => {
+    fetchData();
+  }, [fetchData])
 
   return (
     <Card>
@@ -204,7 +199,7 @@ export default function Component() {
           </TableHeader>
           <TableBody>
             {
-                groups.map((group: Group, index: number) => (
+              Array.isArray(groups) && groups.map((group: Group, index: number) => (
                   <TableRow key={ index }>
                     <TableCell className="font-medium">{group.id}</TableCell>
                     <TableCell>{group.name}</TableCell>

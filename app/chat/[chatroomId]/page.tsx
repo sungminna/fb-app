@@ -1,8 +1,6 @@
 'use client'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
-import { usePathname } from 'next/navigation';
-
 
 import {
   Card,
@@ -11,11 +9,9 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import React from 'react';
 import { getToken } from "@/lib/firebase/getToken";
-
 import { Message } from "@/app/models/chatModel"
 
 export default function ChatRoomList({ params }: {params: {chatroomId: string}}) {
@@ -39,7 +35,7 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
   const socketWork = useCallback(async() => {
     try{
       const token = await getToken();
-      const ws = new WebSocket(`ws://localhost:8000/ws/room/${params.chatroomId}/messages/?token=${token}`)
+      const ws = new WebSocket(`ws://sungminna.com/ws/room/${params.chatroomId}/messages/?token=${token}`)
       wsRef.current = ws;
       
       ws.onopen = () => {
@@ -72,7 +68,7 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
   const getUserId = async() => {
     try{
         const token = await getToken();
-        const res = await fetch('http://localhost:8000/community/users/me', {
+        const res = await fetch('https://sungminna.com/api/community/users/me', {
             method: 'GET', 
             headers: {
               'Content-Type': 'application/json', 
@@ -115,10 +111,10 @@ export default function ChatRoomList({ params }: {params: {chatroomId: string}})
       const token = await getToken();
       var uri="";
       if(page === 1){
-        uri = `http://localhost:8000/chat/messages/room_messages?room_id=${params.chatroomId}&page=${page}&page_size=10`;
+        uri = `https://sungminna.com/api/chat/messages/room_messages?room_id=${params.chatroomId}&page=${page}&page_size=10`;
       }
       else{
-        uri = `http://localhost:8000/chat/messages/room_messages?room_id=${params.chatroomId}&page=${page}`;
+        uri = `https://sungminna.com/api/chat/messages/room_messages?room_id=${params.chatroomId}&page=${page}`;
       }
       const res = await fetch(uri, {
         method: 'GET',

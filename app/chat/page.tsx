@@ -1,5 +1,5 @@
+'use client';
 import { MoreHorizontal } from "lucide-react"
-
 import Link from "next/link";
 import { JoinButton } from "./joinBtn";
 import { Button } from "@/components/ui/button"
@@ -27,54 +27,34 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-import { auth } from "@/lib/firebase/auth"
-
 import { ChatRoom } from "@/app/models/chatModel"
+import { getToken } from "@/lib/firebase/getToken";
 
-const getToken = async() => {
-  try{
-      if(!auth.currentUser){
-          console.log("no user signed in");
-          return;
-        }
-      const user = auth.currentUser;
-      const token = await user.getIdToken();
-      return token;
+const getChatRoomList = async () => {
+  const token = await getToken();
+  const res = await fetch('https://sungminna.com/api/chat/chatrooms/', {
+    method: 'GET', 
+    headers: {
+      'Content-Type': 'application/json', 
+      'Authorization': `Bearer ${token}`, 
+    }, 
+    cache: "no-cache", 
+  });
+  if(!res.ok){
+    throw new Error('Faild to fetch forum data');
   }
-  catch(error){
-      console.log(error);
-  }
+  return res.json();
 }
 
-  const getChatRoomList = async () => {
-    const token = await getToken();
-    const res = await fetch('http://localhost:8000/chat/chatrooms/', {
-      method: 'GET', 
-      headers: {
-        'Content-Type': 'application/json', 
-        'Authorization': `Bearer ${token}`, 
-      }, 
-      //next: { revalidate: 0}, 
-      cache: "no-cache", 
-    });
-    if(!res.ok){
-      throw new Error('Faild to fetch forum data');
-    }
-    return res.json();
-  }
-
 export default async function Component() {
-
-    //const forums = [{'forumName': 'forum1', 'description': 'description1'}, {'forumName': 'forum2', 'description': 'description2'}, {'forumName': 'forum3', 'description': 'description3'}, ]
-    let chatrooms = [];
-    try{
-      const page_chatrooms = await getChatRoomList();
-      chatrooms = page_chatrooms.results;
-      console.log(chatrooms);
-    }
-    catch(error){
-      console.log(error);
-    }
+  let chatrooms = [];
+  try{
+    const page_chatrooms = await getChatRoomList();
+    chatrooms = page_chatrooms.results;
+  }
+  catch(error){
+    console.log(error);
+  }
 
   return (
     <Card>

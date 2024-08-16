@@ -11,18 +11,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import 'firebaseui/dist/firebaseui.css';
-
 import 'firebase/compat/auth';
-
 import { auth } from "@/lib/firebase/auth"
 import { useEffect, useState } from "react"
-
 import { signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-
-import { getTokenServer } from "@/lib/firebase/getToken";
-
+import { getTokenServer, getToken, getUser } from "@/lib/firebase/getToken";
 import { User } from "firebase/auth";
 
 export default function LoginForm() {
@@ -32,7 +26,6 @@ export default function LoginForm() {
   const [user, setUser] = useState<User | null>(null);
   const [isAuth ,setIsAuth] = useState(false);
   const [username, setUsername] = useState<String | null>(null);
-
   const provider = new GoogleAuthProvider();
   
   const CheckCurrentUser = () => {
@@ -55,10 +48,9 @@ export default function LoginForm() {
         console.log("no user signed in");
         return;
       }
-      const user = auth.currentUser;
-      const token = await user.getIdToken();
-      
-      const res = await fetch('http://localhost:8000/local/firebase-token/', {
+      const token = await getToken();
+      const user = await getUser();
+      const res = await fetch('https://sungminna.com/api/local/firebase-token/', {
         method: 'POST', 
         headers: {
           'Content-Type': 'application/json', 
@@ -71,9 +63,6 @@ export default function LoginForm() {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      console.log("server response", data);
-
-
     }
     catch (error){
       console.log(error);
@@ -116,7 +105,6 @@ export default function LoginForm() {
         const user = result.user;
         const username = user.displayName;
         setUsername(username);
-        console.log(token);
         CheckCurrentUser();
         getTokenServer();
     }

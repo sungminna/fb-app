@@ -13,6 +13,17 @@ export const getToken = async() => {
     }
 }
 
+export const getUser = async() => {
+    try{
+        const token = localStorage.getItem('token');
+        const userString = localStorage.getItem('user');
+        const user = userString ? JSON.parse(userString) : null;
+        return user;
+    }
+    catch(error){
+        console.log(error);
+    }
+}
 
 export const getTokenServer = async() => {
     try{
